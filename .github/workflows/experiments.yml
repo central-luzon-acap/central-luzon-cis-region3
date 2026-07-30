@@ -1,0 +1,36 @@
+name: GitHub Actions Experiments
+
+# Adhoc tests and experiments for testing GitHub Actions yml code and
+# for running scripts on GitHub Actions runners
+
+on:
+  push:
+    branches:
+      - <YOUR_TARGET_BRANCH_NAME>
+
+jobs:
+  deploy-server:
+    name: Deploy Server to Heroku
+    runs-on: ubuntu-latest
+    env:
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
+      HEROKU_APP: ${{ secrets.HEROKU_APP_DEV }}
+      LIVE_ORIGIN: ${{ secrets.LIVE_ORIGIN_DEV }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Fetch unshallow repo
+        run: git fetch --prune --tags --unshallow
+      - run: |
+          cat >~/.netrc <<EOF
+          machine api.heroku.com
+            login $HEROKU_EMAIL
+            password $HEROKU_API_KEY
+          machine git.heroku.com
+            login $HEROKU_EMAIL
+            password $HEROKU_API_KEY
+          EOF
+      - run: heroku git:remote -a $HEROKU_APP
+      - run: git push heroku HEAD:refs/heads/master
+      - run: rm -r -f .netrc

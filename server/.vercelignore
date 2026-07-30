@@ -1,0 +1,8 @@
+node_modules/
+src/utils/template/node_modules/
+temp/
+.env
+*.zip
+.git
+.github
+.vscode

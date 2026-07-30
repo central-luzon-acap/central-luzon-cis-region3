@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": ["components/*"],
+      "@/common/*": ["components/common/*"],
+      "@/domain/*": ["domain/*"],
+      "@/firebase/*": ["src/firebase/*"],
+      "@/pages/*": ["pages/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/services/*": ["src/services/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/bacap/*": ["src/mui/bacap/*"],
+      "@/images/*": ["public/images/*"],
+      "@/store/*": ["src/store/*"]
+    }
+  }
+}

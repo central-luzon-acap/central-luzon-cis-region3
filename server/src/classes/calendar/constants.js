@@ -1,0 +1,45 @@
+const STAGE_NEWLY_PLANTED = 'plant/trans'
+const STAGE_VEG_REPRO = 'veg/repro'
+const STAGE_MATURING = 'mat'
+const STAGE_PREPARATION = 'lprep'
+const STAGE_NONE = 'none'
+
+const CROP_STAGE_LABELS = {
+  [STAGE_PREPARATION]: 'Preparation Stage',
+  [STAGE_NEWLY_PLANTED]: 'Newly Planted',
+  [STAGE_VEG_REPRO]: 'Vegetative/Reproductive',
+  [STAGE_MATURING]: 'Maturing'
+}
+
+const CROP_STAGES = {
+  STAGE_NEWLY_PLANTED: CROP_STAGE_LABELS[STAGE_NEWLY_PLANTED],
+  STAGE_VEG_REPRO: CROP_STAGE_LABELS[STAGE_VEG_REPRO],
+  STAGE_MATURING: CROP_STAGE_LABELS[STAGE_MATURING],
+  STAGE_PREPARATION: CROP_STAGE_LABELS[STAGE_PREPARATION]
+}
+
+const NEW_TO_OLD_CROPSTAGE_CODES = {
+  [STAGE_NEWLY_PLANTED]: 'plant',
+  [STAGE_VEG_REPRO]: 'grow',
+  [STAGE_MATURING]: 'harv',
+  [STAGE_PREPARATION]: 'prep'
+}
+const CROP_STAGE_CODES = Object.keys(CROP_STAGE_LABELS)
+  .map(item => item.toLowerCase())
+
+const CROP_STAGE_NAMES = Object.values(CROP_STAGE_LABELS)
+
+const CROP_STAGES_MONTH = {
+  FIRST_HALF: '1st_half', // Day 1-15 of a month
+  SECOND_HALF: '2nd_half' // Day 16 to last day of a month
+}
+
+module.exports = {
+  CROP_STAGE_LABELS,
+  CROP_STAGE_CODES,
+  CROP_STAGE_NAMES,
+  CROP_STAGES,
+  CROP_STAGES_MONTH,
+  NEW_TO_OLD_CROPSTAGE_CODES,
+  STAGE_NONE
+}

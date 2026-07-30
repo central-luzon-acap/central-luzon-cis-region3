@@ -1,0 +1,67 @@
+# .github/workflows/scheduled-sraping.yml
+# This workflow runs a web scraper script that parses PAGASA's El Nino / La Nina web page
+# and uploads relevant cyclone data to Firestore
+name: CRON Scrape and Update El Nino/La Nina Info
+
+on:
+  schedule:
+    # Runs "At 03:05 on Sunday."
+    - cron: '5 3 * * 0'
+
+jobs:
+  update-typhoon-dev:
+    name: Scrape and Update Typhoon Advisory (Development)
+    runs-on: ubuntu-latest
+    env:
+      AXIOS_SSL_REJECT_INVALID: ${{ secrets.AXIOS_SSL_REJECT_INVALID }}
+      FIREBASE_SERVICE_ACC: ${{ secrets.FIREBASE_SERVICE_ACC_DEV }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_DEV }}
+      EMAIL_WHITELIST: ${{ secrets.EMAIL_WHITELIST }}
+      PROVINCES: ${{ secrets.PROVINCES }}
+      PROVINCES_ARCHIVE: ${{ secrets.PROVINCES_ARCHIVE }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: 'dev'
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+      - name: Run script
+        run: |
+          cd server
+          npm run cron:typhoon
+
+  update-typhoon-prod:
+    name: Scrape and Update Typhoon Advisory (Production)
+    needs: update-typhoon-dev
+    runs-on: ubuntu-latest
+    env:
+      AXIOS_SSL_REJECT_INVALID: ${{ secrets.AXIOS_SSL_REJECT_INVALID }}
+      FIREBASE_SERVICE_ACC: ${{ secrets.FIREBASE_SERVICE_ACC_PROD }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_PROD }}
+      EMAIL_WHITELIST: ${{ secrets.EMAIL_WHITELIST }}
+      PROVINCES: ${{ secrets.PROVINCES }}
+      PROVINCES_ARCHIVE: ${{ secrets.PROVINCES_ARCHIVE }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with: # TO-DO: Fine tune with @latest specific release tag reference (i.e., v9.4.5)
+          ref: 'master'
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+      - name: Run script
+        run: |
+          cd server
+          npm run cron:typhoon

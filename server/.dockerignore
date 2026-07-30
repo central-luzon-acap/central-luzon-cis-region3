@@ -1,0 +1,11 @@
+.git
+.gitignore
+node_modules
+src/utils/pdf/livereload/node_modules/
+npm-debug.log
+Dockerfile
+Dockerfile.acap
+.dockerignore
+.env
+.npmrc
+.vercel

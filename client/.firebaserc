@@ -1,0 +1,28 @@
+{
+  "projects": {
+    "default": "region3-cis-prod",
+    "dev": "region3-cis-dev"
+  },
+  "targets": {
+    "region3-cis-prod": {
+      "storage": {
+        "dev": [
+          "region3-cis-prod.appspot.com"
+        ]
+      }
+    },
+    "region3-cis-dev": {
+      "storage": {
+        "dev": [
+          "region3-cis-dev.appspot.com"
+        ]
+      },
+      "hosting": {
+        "dev": [
+          "region3-cis-dev"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

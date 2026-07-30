@@ -1,0 +1,73 @@
+# Render.com YAML file for creating a Blueprint from the server's Dockerfile
+#
+# NOTE:
+#
+# This Render YAML file is intended to use for Render.com "Blueprints" only.
+# - We need updated Chromium drivers for puppeteer, which is not installed
+#   in Render.com's default NodeJS Web Services nor does Render.com provide
+#   means of installing OS-level dependencies atm
+# - Run and install the server app directly on the OS level if possible
+#
+# ADDITIONAL NOTES for ACAP 2.0:
+#
+# - Also create the following Render (docker) "SECRETS" by default
+# - Pls see the project's root README for more information about these "Secrets"
+#
+# LIVE_ORIGIN: <FRONTEND_LIVE_ORIGIN_VALUE>
+# REGION_NAME: <REGION_NAME_VALUE>
+# ROOT_API_URL: <SEE_DOCS_FOR_REFERENCE>
+# IS_RMCAS_API_ACTIVE: (1=if active, 0 or do not include if inactive)
+
+services:
+  - type: web
+    name: amia-cis
+    env: docker
+    dockerfilePath: server/Dockerfile
+    dockerContext: ./server
+    plan: free # optional (defaults to starter)
+    numInstances: 1
+    envVars:
+      - key: ALLOW_CORS
+        value: 1
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ARCHIVE_TENDAY_FORECAST
+        value: 0
+      - key: AXIOS_SSL_REJECT_INVALID
+        value: 0
+      - key: CHECK_RANGE_YEAR
+        value: 1
+      - key: DEFAULT_PROVINCE
+        sync: false
+      - key: EMAIL_WHITELIST
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_SERVICE_ACC
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: LIVE_ORIGIN
+        sync: false
+      - key: OPENWEATHERMAP_APPID
+        sync: false
+      - key: PAGASA_10DAY_EXCEL_BASE_URL
+        sync: false
+      - key: PROVINCES
+        sync: false
+      - key: PROVINCES_ARCHIVE
+        sync: false
+      - key: REGION_NAME
+        sync: false
+      - key: SEMAPHORE_API_KEY
+        sync: false
+      - key: ACAP_API_KEYS
+        sync: false
+      - key: SORT_ALPHABETICAL
+        value: 1
+      - key: IS_RMCAS_API_ACTIVE
+        value: 0
+      - key: DEPLOYMENT_PLATFORM
+        value: default
+      - key: SPECIAL_CHARACTERS
+        value: '├â┬▒:ñ,â:'

@@ -1,0 +1,21 @@
+# Restarts the production Render server container by re-deployment
+name: Re-deploy to Production Environment
+
+# /server app - re-deploy to Render.com (production) app
+
+on:
+  schedule:
+    # Runs "At 5:00 PM (UTC every day, 1:00 AM Philippines time)."
+    - cron: '0 17 * * *'
+
+jobs:
+  deploy-server:
+    name: Re-deploy Server to Render Production
+    runs-on: ubuntu-latest
+    env:
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_PROD }}
+    steps:
+      - name: Call the Render deploy hook
+        run: wget $RENDER_DEPLOY_HOOK
+      - name: Render Post Deploy Message
+        run: echo "Success! Render deploy hook called. Please check the PROD app's deployment status information on its Render dashboard after 10-20 minutes, or wait for deployment notifications in the acap-bicol Slack channel."

@@ -1,0 +1,162 @@
+name: Deploy to Production Environment
+
+# /client app - deploy to an external GitHub Pages website
+# /server app - deploy to Heroku (production) app
+
+# This workflow will trigger on any tag/release created on *any* branch
+# Make sure to create tags/releases only from the "master" branch for consistency
+on:
+  release:
+    types: [published]
+
+jobs:
+  lint-client:
+    name: Lint and Export client
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_BASE_PATH: ""
+      BASE_URL: ${{ secrets.BASE_URL_PROD }}
+      BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
+      BASE_API_URL: ${{ secrets.API_BASE_URL_PROD }}
+      FIREBASE_CONFIG_URL: ${{ secrets.FIREBASE_CONFIG_URL_PROD }}
+      MAPBOX_USERNAME: ${{ secrets.MAPBOX_USERNAME }}
+      MAPBOX_BASEMAP_STYLE_ID: ${{ secrets.MAPBOX_BASEMAP_STYLE_ID }}
+      MAPBOX_DATASET_ID: ${{ secrets.MAPBOX_DATASET_ID }}
+      MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+      PAGASA_EXCEL_FILE: ${{ secrets.PAGASA_EXCEL_FILE_PROD }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install Dependencies
+        run: |
+          cd client
+          wget $FIREBASE_CONFIG_URL -O ./src/firebase/firebase.config.js
+          npm install
+      - name: Lint
+        run: |
+          cd client
+          npm run lint
+      - name: Export static files
+        run: |
+          cd client
+          npm run export
+          mv out/404/index.html out/404.html
+      - name: Disable Jekyll
+        run: |
+          cd client
+          touch out/.nojekyll
+      - name: Package static website
+        run: |
+          cd client
+          tar cvfz website.tar.gz out/
+      - name: Archive Development Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: main-out
+          path: client/website.tar.gz
+          retention-days: 3
+
+  lint-server:
+    name: Lint Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install Dependencies and lint
+        run: |
+          cd server
+          npm install
+          npm run lint
+
+  deploy-client:
+    name: Deploy Client to GitHub Pages
+    needs: lint-client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: main-out
+      - name: Extract Artifact Files
+        run: tar -zxvf website.tar.gz
+      - name: Deploy to External Github Pages
+        run: |
+          git config --global user.email "${{ secrets.GH_EMAIL }}"
+          git config --global user.name "${{ secrets.GH_USERNAME }}"
+          git clone https://github.com/${{ secrets.GH_ORG }}/${{ secrets.GH_REPOSITORY }}
+          cd ${{ secrets.GH_REPOSITORY }}
+          git rm -r -f .
+          mv ../out/* .
+          mv ../out/.nojekyll .
+          echo *.tar.gz > .gitignore
+          echo .gitignore >> .gitignore
+          git add .
+          git commit -m "Commit release ${{ github.event.release.tag_name }}."
+          git push https://${{ secrets.GH_USERNAME }}:${{ secrets.GH_PUSH_TOKEN }}@github.com/${{ secrets.GH_ORG }}/${{ secrets.GH_REPOSITORY }}
+          rm -r -f ${{ secrets.GH_REPOSITORY }}
+      - name: Attach Artifact to Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: website.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-server:
+    name: Deploy Server to Heroku
+    needs: [deploy-client, lint-server]
+    runs-on: ubuntu-latest
+    env:
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
+      HEROKU_APP: ${{ secrets.HEROKU_APP_PROD }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Fetch unshallow repo
+        run: git fetch --prune --tags --unshallow
+      - run: |
+          cat >~/.netrc <<EOF
+          machine api.heroku.com
+            login $HEROKU_EMAIL
+            password $HEROKU_API_KEY
+          machine git.heroku.com
+            login $HEROKU_EMAIL
+            password $HEROKU_API_KEY
+          EOF
+      - run: heroku git:remote -a $HEROKU_APP
+      - run: git push heroku HEAD:refs/heads/master
+      - run: rm -r -f .netrc
+
+  scrape-search-words:
+    name: Scrape and Update Search Words
+    needs: deploy-server
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACC: ${{ secrets.FIREBASE_SERVICE_ACC_PROD }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_PROD }}
+      EMAIL_WHITELIST: ${{ secrets.EMAIL_WHITELIST }}
+      LIVE_ORIGIN: ${{ secrets.LIVE_ORIGIN_PROD }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+      - name: Run script
+        run: |
+          cd server
+          npm run build:page_index

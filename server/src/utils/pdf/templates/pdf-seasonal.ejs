@@ -1,0 +1,354 @@
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF HTML Puppeteer Template</title>
+</head>
+<body>
+  <div class="container">
+    <!-- Main Header -->
+    <div class="header">
+      <!-- Upper Content -->
+      <div class="header-upper">
+        <!-- Logo -->
+        <div class="header-logos">
+          <img src="images/da-logo.png">
+          <img src="images/amia-logo.png">
+        </div>
+
+        <!-- Text -->
+        <div class="header-text">
+          Republic of the Philippines<br>
+          <span class="bold-text">DEPARTMENT OF AGRICULTURE</span><br>
+          <span class="bold-text">REGIONAL FIELD OFFICE NO. 3</span><br>
+          Maimpis, San Fernando, Pampanga, 2000<br>
+          <span class="url-text">https://rfo3.da.gov.ph</span><br>
+        </div>
+
+        <div class="crop-container">
+          <div class="crop-logo">
+            <div class="dot"></div>
+            <% if (crop === "Rice" ) { %>
+              <img src="images/rice-logo.png" alt="Rice Logo">
+            <% } else if (crop === "Corn" ) { %>
+              <img src="images/corn-logo.png" alt="Corn Logo">
+            <% } %>
+          </div>
+          <div class="crop-label"><%= crop %></div>
+        </div>
+      </div>
+    </div>
+    <!-- Sub Header -->
+    <div class="sub-header">
+      <div>
+        Seasonal Climate Outlook and Advisory (<%= province %>)
+      </div>
+      <div>
+        <%= seasonalCoverage %>
+      </div>
+    </div>
+    <!-- END Header -->
+
+    <!-- START: Section Climate Outlook, Weather Systems  -->
+    <div class="section-table-container section-climate">
+
+      <!-- Left Panel: Climate Outlook Summary -->
+      <div class="left-panel">
+        <div class="header-title">
+          Climate Outlook Advisory
+        </div>
+
+        <div class="content">
+          <div class="images">
+            <img src="data:image/png;base64,<%= ensoImgDialBase64 %>" height="100" width="200">
+          </div>
+          <!-- List of ENSO information -->
+          <div id="climate-outlook-summary">
+            <ul class="climate-outlook-content" id="fixed-text-02">
+              <% ensoData.forEach((item) => { %>
+                <li><%= item %></li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Weather Systems -->
+      <div class="right-panel">
+        <div class="weather-systems-title">
+          Seasonal Forecast
+        </div>
+
+        <div class="content">
+          <div class="content-wrapper">
+            <div class="left-content">
+              <table class="section-table">
+                <thead>
+                  <tr class="bg-dark-blue">
+                    <th class="text-white" width="10%" rowspan="2">Month</th>
+                    <th class="text-white" width="11%" rowspan="2">Tropical Cyclones</th>
+                  </tr>
+                </thead>
+                <tbody class="tbody-center">
+                  <!-- No. of Dry Days table data -->
+                  <% monthsHeaders.forEach((item) => { %>
+                  <tr>
+                    <td class="bold-text"><%= item.short %></td>
+                    <td><%= item.cyclones %></td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+
+              <table class="table-dry">
+                <tr>
+                  <th class="bg-sky-blue" width="10%" rowspan="2">Prov</th>
+                  <th width="10%" colspan="6" class="tbl-dry-days">No. of Dry Days</th>
+                </tr>
+                <tr class="dry-months bg-sky-blue">
+                  <!-- No. of Dry Days table months header -->
+                  <% monthsHeaders.forEach((item) => { %>
+                  <th width="10%"><%= item.short %></th>
+                  <% }) %>
+                </tr>
+                <tbody class="tbody-center">
+                  <% seasonalForecastTableData.forEach((record) => { %>
+                  <tr>
+                    <td class="bold-text"><%= record.code %></td>
+                    <% record.dryforecast.forEach((forecast) => { %>
+                    <td><%= forecast %></td>
+                    <% }) %>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Other Weather Systems That May Affect the Region -->
+            <div class="other-weather-system-container">
+              <div class="other-weather-system">
+                Other Weather Systems That May Affect The Region
+              </div>
+
+              <div class="three-column-list">
+                <%
+                  const columnCount = 3;
+                  const itemsPerColumn = Math.ceil(weatherSystemsData.length / columnCount);
+                  const columns = Array.from({ length: columnCount }, (_, i) =>
+                    weatherSystemsData.slice(i * itemsPerColumn, (i + 1) * itemsPerColumn)
+                  );
+                %>
+
+                <% columns.forEach(column => { %>
+                  <ul>
+                    <% column.forEach(record => { %>
+                      <li><%= record.value %></li>
+                    <% }) %>
+                  </ul>
+                <% }) %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END: Section Climate Outlook, Weather Systems  -->
+
+    <!-- START: Forecast Rainfall Analysis -->
+    <div class="section-rainfall">
+      <div class="header-title">
+        Forecast Rainfall Analysis
+      </div>
+
+      <table class="section-rainfall-tbl">
+        <thead>
+          <tr class="months">
+            <!-- Month with Year table header -->
+            <% monthsHeaders.forEach((item) => { %>
+            <th colspan="3"><%= item.formatted %></th>
+            <% }) %>
+          </tr>
+          <tr class="subtitle">
+            <th style="border-left: 1px solid #BFBFBF;" width="5%">Normal (mm)</th>
+            <th width="5%">Forecast (mm)</th>
+            <th width="5%">% of Normal</th>
+            <th width="5%">Normal (mm)</th>
+            <th width="5%">Forecast (mm)</th>
+            <th width="5%">% of Normal</th>
+            <th width="5%">Normal (mm)</th>
+            <th width="5%">Forecast (mm)</th>
+            <th width="5%">% of Normal</th>
+            <th width="5%">Normal (mm)</th>
+            <th width="5%">Forecast (mm)</th>
+            <th width="5%">% of Normal</th>
+            <th width="5%">Normal (mm)</th>
+            <th width="5%">Forecast (mm)</th>
+            <th width="5%">% of Normal</th>
+            <th width="5%">Normal (mm)</th>
+            <th width="5%">Forecast (mm)</th>
+            <th style="border-right: 1px solid #BFBFBF;" width="5%">% of Normal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- NDA CSS class -->
+          <%
+          let ndaCssClass = {
+            nda: 'bg-nda',
+            wb_normal: 'bg-wb_normal',
+            b_normal: 'bg-b_normal',
+            near_normal: 'bg-near_normal',
+            above_normal: 'bg-above_normal',
+          }
+          %>
+
+          <!-- Seasonal Weather Forecast and other Rainfall Analysis table -->
+           <% seasonalTableData.forEach((record, rIndex) => { %>
+          <tr>
+            <% record.values.forEach((item, idx) => { %>
+              <td>
+                <%= seasonalTableData[rIndex].normal[idx] %>
+              </td>
+              <td><%= seasonalTableData[rIndex].mean[idx] %></td>
+              <td class="<%= ndaCssClass[seasonalTableData[rIndex].class[idx]] %>"><%= item %></td>
+            <% }) %>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <!-- Forecast Rainfall Legend -->
+      <div class="section-rainfall-legend">
+        <div class="legend-info">
+          All Climate Forecast/Information is based on PAGASA’s latest Seasonal Climate Outlook available at:
+          <br>
+          <span class="url-smaller-text">
+            https://bagong.pagasa.dost.gov.ph/climate/climate-prediction/seasonal-forecast
+          </span>
+        </div>
+        <div class="legend-data">
+          <div class="legend-title-wrapper">
+            <div>
+              <span class="bold-text">LEGEND:</span>&nbsp;&nbsp;&nbsp;
+            </div>
+          </div>
+
+          <div class="legend-data-content">
+            <ul>
+              <li><span style="background:#BFBFBF;"></span>No Data Available (nda)</li>
+              <li><span style="background:#fe0002;"></span>Way below normal (&lt;=40%)</li>
+            </ul>
+
+            <ul>
+              <li><span style="background:#f4f214;"></span>Below normal (41%-80%)</li>
+              <li><span style="background:#00c300;"></span>Near Normal (81%-120%)</li>
+            </ul>
+
+            <ul>
+              <li><span style="background:#215F9A;"></span>Above Normal (&gt;120%)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- END: Forecast Rainfall Analysis -->
+
+    <!-- START: Recommendations for Impact Outlooks and Climate-Resilient Agriculture Practices -->
+    <div class="<% if (hasProvincial) { %>section-recommendations<% } else { %>section-recommendations-fixed<% } %>">
+      <div class="recs-impact-outlooks">
+        <!-- Impact Outlooks Header -->
+        <div class="header-title recs-header">
+          Impact Outlook
+        </div>
+
+        <!-- Impact Outlooks Picture-Data Container -->
+        <div class="picture-data-wrapper">
+          <div class="recommendations" id="impacts-outlooks">
+            <div id="fixed-text-04">
+              <%- recommendationsImpacts %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="recs-agri-practices">
+        <div class="header-title recs-header" style="border-left: 1px solid black;">
+          Climate-Resilient Agriculture Practices
+        </div>
+
+        <!-- Impact Outlooks Picture-Data Container -->
+        <div style="border-top: none !important;" class="impact-outlook-picture-data-wrapper">
+          <!-- Seasonal Crop Recommendations List -->
+          <div class="recommendations fixed-size" id="recommendations" style="padding-left: 10px;">
+            <div id="fixed-text-01">
+              <% if (hasProvincial) { %>
+                <% Object.keys(recommendationsByStage).forEach(stage=> { %>
+                  <div class="recs-title crop-stage">
+                    <%= stage %>
+                  </div>
+                  <br>
+                  <% Object.keys(recommendationsByStage[stage]).forEach(farmoperation=> { %>
+                    <div class="recs-title farm-operation">
+                      <%= farmoperation %>
+                    </div>
+                    <% recommendationsByStage[stage][farmoperation].forEach(recommendation=> { %>
+                      <% if(language=='en' ){ %>
+                        <div class="recommendations-content">
+                          <%- recommendation.management_recommendations_english %>
+                        </div>
+                      <% } else { %>
+                        <div class="recommendations-content">
+                          <%- recommendation.management_recommendations_tagalog %>
+                        </div>
+                      <% } %>
+                    <% }) %>
+                  <% }) %>
+                <% }) %>
+              <% } else { %>
+                <div class="simple-recommendations-content">
+                  <%- recommendationsByStage %>
+                </div>
+              <% } %>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END: Recommendations for Impact Outlooks and Climate-Resilient Agriculture Practices -->
+
+    <!-- START: DA Supports Footer -->
+    <div class="da-footer" style="margin-top: 20px; position: static; bottom: 0; padding-bottom: 10px;">
+      <div class="footer-title recs-header">
+        Department of Agriculture Support Services
+      </div>
+
+      <div class="supports-list">
+        <div>
+          <ul class="recommendations footer-text">
+            <% services.forEach((service)=> {  %>
+              <li>
+                <span>
+                  <%= service %>
+                </span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- END: DA Supports Footer -->
+
+    <!-- START: Contact Info -->
+    <div class="contact-info-container">
+      <div class="contact-info-content">
+        For more details, contact: (049) 536-3688 / <span class="url-text">daamiarfo3@gmail.com</span>
+        <br>
+        <br>
+      </div>
+    </div>
+    <!-- END: Contact Info -->
+
+  </div>
+</body>
+</html>

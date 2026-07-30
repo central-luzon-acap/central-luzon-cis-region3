@@ -1,0 +1,173 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // AUTH --------------------------------------------------------
+
+    // Is the user signed-in using basic authentication?
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Is the signed-in user a valid App user?
+    // Has a custom claims "account_level" value: 1=superadmin, 2=admin
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.account_level == 2
+    }
+
+    // Does the signed-in user's auth uid match the requested userId?
+    function isDocumentOwner(resourceData) {
+      return request.auth.uid == resourceData.uid;
+    }
+
+    // DOCUMENTS matching rules  --------------------------------------------------------
+
+    // Block read/write access on all paths from the root level
+    match /{document=**} {
+      allow write: if false;
+      allow read: if false;
+    }
+
+    // COMMON Functions --------------------------------------------------------
+
+    function isValidRecomsUpdateFields () {
+      let allowedFields = [
+        'id',
+        'impact_outlook_english',
+        'impact_outlook_english',
+        'management_recommendations_english',
+        'management_recommendations_tagalog',
+        'sms'
+      ];
+
+      let restrictedFields = [
+        'docId',
+        'climate_risk',
+        'crop',
+        'crop_stage',
+        'farming_activity'
+      ];
+
+      return
+        // Does not allow updating the following fields
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(
+          restrictedFields)) &&
+        // Only allows updates for the following fields
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields));
+    }
+
+    // COMMON DATA --------------------------------------------------------
+
+    match /n_page_assets/{docId} {
+      allow read: if true;
+    }
+
+    match /n_page_search/{docId} {
+      allow read: if true;
+    }
+
+    match /constant_data/{docId} {
+      allow read: if true;
+    }
+
+    // WEATHER FORECASTS --------------------------------------------------------
+
+    match /w_services/{docId} {
+      allow read: if true;
+    }
+
+    match /weather_forecasts/{docId}/{document=**} {
+      allow read: if true;
+    }
+
+    // PUBLIC PDF BULETTINS --------------------------------------------------------
+
+    // Seasonal Outloook PDF Bulletins
+    match /bulletins_pdf_crops/{docId} {
+      allow read: if true;
+    }
+
+    // Special Weather Outlook PDF Bulletins
+    match /bulletins_pdf_special/{docId} {
+      allow read: if true;
+    }
+
+    // 10-Day Outlook PDF Bulletins
+    match /bulletins_pdf_tenday/{docId} {
+      allow read: if true;
+    }
+
+    // CROPPING CALENDAR --------------------------------------------------------
+
+    match /n_cropping_calendar_lite/{docId} {
+      allow read: if true;
+    }
+
+    match /n_cropping_calendar_x/calendar/{document=**} {
+      allow read: if true;
+    }
+
+    // RECOMMENDATIONS --------------------------------------------------------
+
+    match /n_crop_recommendations_seasonal/{docId} {
+      allow list: if true;
+      allow get: if isAdmin();
+      allow write: if isAdmin() && isValidRecomsUpdateFields();
+    }
+
+    match /n_crop_recommendations_seasonal_general/{docId} {
+      allow list: if true;
+      allow get: if isAdmin();
+      allow write: if isAdmin() && isValidRecomsUpdateFields();
+    }
+
+    match /n_crop_recommendations_seasonal_sms/{docId} {
+      allow list: if true;
+      allow get: if isAdmin();
+      allow write: if isAdmin() && isValidRecomsUpdateFields();
+    }
+
+    match /n_crop_recommendations_tenday/{docId} {
+      allow list: if true;
+      allow get: if isAdmin();
+      allow write: if isAdmin() && isValidRecomsUpdateFields();
+    }
+
+    match /n_crop_recommendations_tenday_sms/{docId} {
+      allow list: if true;
+      allow get: if isAdmin();
+      allow write: if isAdmin() && isValidRecomsUpdateFields();
+    }
+
+    match /n_crop_recommendations_special/{docId} {
+      allow list: if true;
+      allow get: if isAdmin();
+      allow write: if isAdmin() && isValidRecomsUpdateFields();
+    }
+
+    match /n_crop_recommendations_special_sms/{docId} {
+      allow list: if true;
+      allow get: if isAdmin();
+      allow write: if isAdmin() && isValidRecomsUpdateFields();
+    }
+
+    // REPORTS --------------------------------------------------------
+
+    match /reports_crops/{docId} {
+      allow read: if isAdmin() && isDocumentOwner(resource.data);
+    }
+
+    // PHONEBOOK --------------------------------------------------------
+
+    match /phonebook/{docId} {
+      allow read: if isAdmin() && isDocumentOwner(resource.data);
+    }
+
+    // SUPPORT SERVICES ----------------------------------------------
+		match /support_services/{docId} {
+			allow read: if true;
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+		}
+  }
+}

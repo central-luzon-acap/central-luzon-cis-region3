@@ -1,0 +1,237 @@
+name: Deploy to Production Environment
+
+# /client app - deploy to an external GitHub Pages website
+# /server app - deploy to Render.com (production) app
+
+# This workflow will trigger on any tag/release created on *any* branch
+# Make sure to create tags/releases only from the "master" branch for consistency
+on:
+  release:
+    types: [published]
+
+env:
+  DEPLOYMENT_PLATFORM: ${{ vars.DEPLOYMENT_PLATFORM }}
+  REGION_NAME: ${{ secrets.REGION_NAME }}
+  LIVE_ORIGIN: ${{ secrets.LIVE_ORIGIN_PROD }}
+
+jobs:
+  lint-client:
+    name: Lint and Export client
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_BASE_PATH: ""
+      BASE_URL: ${{ secrets.LIVE_ORIGIN_PROD }}
+      BASE_URL_PROD: ${{ secrets.LIVE_ORIGIN_PROD }}
+      BASE_API_URL: ${{ secrets.API_BASE_URL_PROD }}
+      FIREBASE_CONFIG_URL: ${{ secrets.FIREBASE_CONFIG_URL_PROD }}
+      MAPBOX_USERNAME: ${{ secrets.MAPBOX_USERNAME }}
+      MAPBOX_BASEMAP_STYLE_ID: ${{ secrets.MAPBOX_BASEMAP_STYLE_ID }}
+      MAPBOX_DATASET_ID: ${{ secrets.MAPBOX_DATASET_ID }}
+      MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+      PAGASA_EXCEL_FILE: ${{ secrets.PAGASA_EXCEL_FILE }}
+      OPENWEATHERMAP_APPID: ${{ secrets.OPENWEATHERMAP_APPID }}
+      DEFAULT_PROVINCE: ${{ secrets.DEFAULT_PROVINCE }}
+      DEFAULT_MUNICIPALITY: ${{ secrets.DEFAULT_MUNICIPALITY }}
+      NEXT_PUBLIC_GEOJSON_URL: ${{ secrets.NEXT_PUBLIC_GEOJSON_URL }}
+      NEXT_PUBLIC_FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY_PROD }}
+      NEXT_PUBLIC_FIREBASE_WEB_AUTHDOMAIN: ${{ secrets.FIREBASE_WEB_AUTHDOMAIN_PROD }}
+      NEXT_PUBLIC_FIREBASE_WEB_PROJECT_ID: ${{ secrets.FIREBASE_WEB_PROJECT_ID_PROD }}
+      NEXT_PUBLIC_FIREBASE_WEB_STORAGE_BUCKET: ${{ secrets.FIREBASE_WEB_STORAGE_BUCKET_PROD }}
+      NEXT_PUBLIC_FIREBASE_WEB_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_WEB_MESSAGING_SENDER_ID_PROD }}
+      NEXT_PUBLIC_FIREBASE_WEB_APP_ID: ${{ secrets.FIREBASE_WEB_APP_ID_PROD }}
+      NEXT_PUBLIC_FIREBASE_WEB_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_WEB_MEASUREMENT_PROD }}
+      NEXT_PUBLIC_CHECK_RANGE_YEAR: ${{ secrets.NEXT_PUBLIC_CHECK_RANGE_YEAR_PROD }}
+      CROPPING_CALENDAR_RICE_EXCEL_FILE: ${{ secrets.CROPPING_CALENDAR_RICE_EXCEL_FILE }}
+      CROPPING_CALENDAR_CORN_EXCEL_FILE: ${{ secrets.CROPPING_CALENDAR_CORN_EXCEL_FILE }}
+      CROPPING_CALENDAR_AMPALAYA_EXCEL_FILE: ${{ secrets.CROPPING_CALENDAR_AMPALAYA_EXCEL_FILE }}
+      CROPPING_CALENDAR_TOMATO_EXCEL_FILE: ${{ secrets.CROPPING_CALENDAR_TOMATO_EXCEL_FILE }}
+      CROPPING_CALENDAR_MUNGBEAN_EXCEL_FILE: ${{ secrets.CROPPING_CALENDAR_MUNGBEAN_EXCEL_FILE }}
+      CROPPING_CALENDAR_CUCUMBER_EXCEL_FILE: ${{ secrets.CROPPING_CALENDAR_CUCUMBER_EXCEL_FILE }}
+      RECOMMENDATIONS_RICE_EXCEL_FILE: ${{ secrets.RECOMMENDATIONS_RICE_EXCEL_FILE }}
+      RECOMMENDATIONS_CORN_EXCEL_FILE: ${{ secrets.RECOMMENDATIONS_CORN_EXCEL_FILE }}
+      RECOMMENDATIONS_AMPALAYA_EXCEL_FILE: ${{ secrets.RECOMMENDATIONS_AMPALAYA_EXCEL_FILE }}
+      RECOMMENDATIONS_TOMATO_EXCEL_FILE: ${{ secrets.RECOMMENDATIONS_TOMATO_EXCEL_FILE }}
+      RECOMMENDATIONS_MUNGBEAN_EXCEL_FILE: ${{ secrets.RECOMMENDATIONS_MUNGBEAN_EXCEL_FILE }}
+      RECOMMENDATIONS_CUCUMBER_EXCEL_FILE: ${{ secrets.RECOMMENDATIONS_CUCUMBER_EXCEL_FILE }}
+      REGION_CODE: ${{ secrets.REGION_CODE }}
+      REGION_NAME: ${{ secrets.REGION_NAME }}
+      REGION_LAT_AND_LNG: ${{ secrets.REGION_LAT_AND_LNG }}
+      REGIONAL_FIELD_OFFICE: ${{ secrets.REGIONAL_FIELD_OFFICE }}
+      REGION_URL: ${{ secrets.REGION_URL }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install Dependencies
+        run: |
+          cd client
+          npm install
+      - name: Lint
+        run: |
+          cd client
+          npm run lint
+      - name: Export static files
+        run: |
+          cd client
+          npm run export
+          mv out/404/index.html out/404.html
+          chmod +x ../scripts/deploy_ghpages.sh
+          ../scripts/deploy_ghpages.sh
+          mkdir out/files
+          cd .. && cp server/src/scripts/data/dataset_v2.0/*.* client/out/files/
+          cp server/src/scripts/data/pagasa_seasonal_v2.xlsx client/out/files/
+      - name: Disable Jekyll
+        run: |
+          cd client
+          touch out/.nojekyll
+      - name: Package static website
+        run: |
+          cd client
+          tar cvfz website.tar.gz out/
+      - name: Archive Development Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-out
+          path: client/website.tar.gz
+          retention-days: 3
+
+  lint-server:
+    name: Lint Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install Dependencies and lint
+        run: |
+          cd server
+          npm install
+          npm run lint
+
+  deploy-client:
+    name: Deploy Client to GitHub Pages
+    needs: lint-client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: main-out
+      - name: Extract Artifact Files
+        run: tar -zxvf website.tar.gz
+      - name: Deploy to External Github Pages
+        run: |
+          git config --global user.email "${{ secrets.GH_EMAIL }}"
+          git config --global user.name "${{ secrets.GH_USERNAME }}"
+          git clone https://github.com/${{ secrets.GH_ORG }}/${{ secrets.GH_REPOSITORY }}
+          cd ${{ secrets.GH_REPOSITORY }}
+          git rm -r -f .
+          mv ../out/* .
+          mv ../out/.nojekyll .
+          echo *.tar.gz > .gitignore
+          echo .gitignore >> .gitignore
+          git add .
+          git commit -m "Commit release ${{ github.event.release.tag_name }}"
+          git push https://${{ secrets.GH_USERNAME }}:${{ secrets.GH_PUSH_TOKEN }}@github.com/${{ secrets.GH_ORG }}/${{ secrets.GH_REPOSITORY }}
+          rm -r -f ${{ secrets.GH_REPOSITORY }}
+#      - name: Attach Artifact to Release
+#        uses: softprops/action-gh-release@v1
+#        if: startsWith(github.ref, 'refs/tags/')
+#        with:
+#          files: website.tar.gz
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-server:
+    name: Deploy Server to Render Production
+    needs: lint-server
+    runs-on: ubuntu-latest
+    env:
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_PROD }}
+    steps:
+      - name: Call the Render deploy hook
+        run: wget $RENDER_DEPLOY_HOOK
+      - name: Render Post Deploy Message
+        run: echo "Success! Render deploy hook called. Please check the PROD app's deployment status information on its Render dashboard after 10-20 minutes, or wait for deployment notifications in the acap-bicol Slack channel."
+
+  # Set the GitHub Variable DEPLOYMENT_PLATFORM=default to skip deployment to Vercel
+  # To enable deployment to Vercel:
+  #   1. Initialize a Vercel NodeJS app whose name is $VERCEL_APP_DEV
+  #   2. Deploy the server app to it locally using the Vercel CLI (v28.16.7) following the steps from
+  #      https://vercel.com/guides/using-express-with-vercel
+  #   3. Set the GitHub Variable DEPLOYMENT_PLATFORM=vercel
+  deploy-server-vercel:
+    name: Deploy Server to Vercel
+    if: ${{ vars.DEPLOYMENT_PLATFORM == 'vercel' }}
+    needs: lint-server
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_PROD }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_APP: ${{ secrets.VERCEL_APP_PROD }}
+      ROOT_API_URL: ${{ secrets.ROOT_API_URL_PROD }}
+      ROOT_API_URL_VERCEL: ${{ secrets.ROOT_API_URL_VERCEL_PROD }}
+      IS_RMCAS_API_ACTIVE: ${{ secrets.IS_RMCAS_API_ACTIVE }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Use NodeJS v18.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install Vercel CLI
+        run: npm install --global vercel@28.16.7
+      - name: Pull Vercel Environment Information
+        run: |
+          cd server
+          mkdir $VERCEL_APP
+          vercel pull --cwd $VERCEL_APP --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Project Artifacts
+        run: |
+          cd server
+          mv $VERCEL_APP/.vercel/ .
+          npm install
+          npm run gen:docs:vercel
+          rm .npmrc
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Project Artifacts to Vercel
+        run: |
+          cd server
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Post Deployment Clean-up
+        run: |
+          cd server
+          rm -r -f .vercel
+
+  scrape-search-words:
+    name: Scrape and Update Search Words
+    needs: deploy-client
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACC: ${{ secrets.FIREBASE_SERVICE_ACC_PROD }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_PROD }}
+      EMAIL_WHITELIST: ${{ secrets.EMAIL_WHITELIST }}
+      PROVINCES: ${{ secrets.PROVINCES }}
+      PROVINCES_ARCHIVE: ${{ secrets.PROVINCES_ARCHIVE }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+      - name: Run script
+        run: |
+          cd server
+          npm run build:page_index

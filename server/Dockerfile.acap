@@ -1,0 +1,28 @@
+# BASE PROFILE
+FROM zenika/alpine-chrome:89-with-node-16 AS base
+USER root
+RUN adduser -D node
+RUN addgroup node node
+RUN mkdir -p /opt/server
+WORKDIR /opt/server
+COPY package*.json ./
+
+# PRODUCTION PROFILE TARGET
+FROM base as production
+ENV NODE_ENV production
+ENV PUPPETEER_EXECUTABLE_PATH='/usr/bin/chromium-browser'
+# Fix: Set permissions for installing Sharp on alpine NodeJS v15+ images
+COPY --chown=node:node . .
+RUN npm ci --only=production && npm cache clean --force
+EXPOSE 3001
+CMD ["node", "src/index.js"]
+
+# DEVELOPMENT PROFILE TARGET
+FROM base as development
+ENV NODE_ENV development
+ENV PUPPETEER_EXECUTABLE_PATH='/usr/bin/chromium-browser'
+# Fix: Set permissions for installing Sharp on alpine NodeJS v15+ images
+COPY --chown=node:node . .
+RUN npm install && npm cache clean --force
+EXPOSE 3001
+CMD ["npm", "run", "dev"]

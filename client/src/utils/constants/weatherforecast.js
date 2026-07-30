@@ -1,0 +1,8 @@
+const SAMPLE_LOCATION = {
+  PROVINCE: process.env.DEFAULT_PROVINCE,
+  MUNICIPALITY: process.env.DEFAULT_MUNICIPALITY
+}
+
+export {
+  SAMPLE_LOCATION
+}

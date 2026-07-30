@@ -1,0 +1,11 @@
+[
+  { "id": 0, "value": "Thunderstorm" },
+  { "id": 1, "value": "Southwest Monsoon" },
+  { "id": 2, "value": "ITCZ" },
+  { "id": 3, "value": "LPA" },
+  { "id": 4, "value": "Easterlies" },
+  { "id": 5, "value": "Tropical Cyclones" },
+  { "id": 6, "value": "HPAs" },
+  { "id": 7, "value": "Tail-end of the frontal system" },
+  { "id": 8, "value": "Northeast Monsoon" }
+]

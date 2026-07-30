@@ -1,0 +1,17 @@
+{
+  "name": "Agro-Climatic Advisory Portal {{REGION_NAME}} (ACAP - {{REGION_NAME}}) REST API",
+  "version": "1.0.0",
+  "description": "REST API Documentation",
+  "title": "Agro-Climatic Advisory Portal {{REGION_NAME}} (ACAP - {{REGION_NAME}}) REST API",
+  "url": "{{http://API_URL}}",
+  "sampleUrl": "{{http://API_URL}}/api",
+  "header": {
+    "title": "Agro-Climatic Advisory Portal {{REGION_NAME}} (ACAP - {{REGION_NAME}}) REST API",
+    "filename": "{{HEADER_MARKDOWN_FULL_PATH}}"
+  },
+  "template": {
+    "withCompare": false,
+    "withFilter": false,
+    "showRequiredLabels": true
+  }
+}

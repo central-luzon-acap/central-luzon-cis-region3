@@ -1,0 +1,10 @@
+{{LIVE_ORIGIN}}/
+{{LIVE_ORIGIN}}/weather-services/
+{{LIVE_ORIGIN}}/cropping-calendar-v2/
+{{LIVE_ORIGIN}}/agroclimatic-services/
+{{LIVE_ORIGIN}}/bulletins/
+{{LIVE_ORIGIN}}/bulletins/weather/
+{{LIVE_ORIGIN}}/bulletins/seasonal-outlook/
+{{LIVE_ORIGIN}}/bulletins/special-weather-forecast/
+{{LIVE_ORIGIN}}/admin/login/
+{{LIVE_ORIGIN}}/superadmin/login/

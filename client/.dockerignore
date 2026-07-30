@@ -1,0 +1,10 @@
+.git
+.gitignore
+.firebase
+.next
+out
+node_modules
+npm-debug.log
+Dockerfile
+Dockerfile.acap
+.dockerignore

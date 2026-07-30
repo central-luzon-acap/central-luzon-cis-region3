@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Special Weather Bulletin</title>
+</head>
+<body>
+  <div class="container">
+    <!-- Main Header -->
+    <div class="soft-bordered">
+      <div class="header">
+        <!-- Upper Content -->
+        <div class="header-upper">
+          <!-- Logo DA -->
+          <div class="logo-wrapper">
+            <img src="../livereload/public/special-signal/images/da-logo.png">
+          </div>
+
+          <!-- Text -->
+          <div>
+            Republic of the Philippines<br>
+            DEPARTMENT OF AGRICULTURE<br>
+            REGIONAL FIELD OFFICE NO. 3<br>
+            Maimpis, San Fernando, Pampanga, 2000<br>
+            https://rfo3.da.gov.ph<br>
+          </div>
+
+          <!-- Logo DA-AMIA -->
+          <div class="logo-wrapper">
+            <img src="../livereload/public/special-signal/images/amia-logo.png">
+          </div>
+        </div>
+
+        <div class="header-lower">
+          Building Climate-Resilient Livelihoods and Agri fisheries Communities
+        </div>
+      </div>
+    </div>
+    <!-- END Header -->
+
+    <!-- Sub Header -->
+    <div class="sub-header font-arial">
+      <div class="sub-header-title soft-bordered">
+        Special Farm Weather Outlook and Advisory for Central Luzon
+      </div>
+    </div>
+    <!-- END Sub Header -->
+
+    <!-- START: SECTION-01 Typhoon Info -->
+    <div class="section-01">
+
+      <!-- START Left Panel Group -->
+      <div class="panel">
+        <!-- Bulletin # -->
+        <div class="soft-bordered font-arial bulletin-number">
+          <div class="title-panel centered allcaps">
+            <%= cycloneData.meta.bulletin_number %>
+          </div>
+          <div class="text-subtitle centered">
+            <%= cycloneData.meta.issued_at %>
+          </div>
+        </div>
+
+        <!-- INFO: Typhoon Name -->
+        <div>
+          <div class="title-panel centered bg-red allcaps">
+            <%= cycloneData.meta.typhoon_name %>
+          </div>
+        </div>
+
+        <!-- Typhoon Details -->
+        <% cycloneData.details.forEach((detail, index) => { %>
+        <%if (index === 0 || index === 1 || index === 2) { %>
+        <div>
+          <div class="subtitle-panel">
+            <%= detail.title %>
+          </div>
+          <div class="text-regular bg-gray">
+            <%= detail.value %>
+          </div>
+        </div>
+        <% } %>
+        <% }) %>
+
+        <!-- INFO: Forecast Position -->
+        <div class="forecast-position" id="typhoon">
+          <div class="subtitle-panel">
+            Forecast Position
+          </div>
+          <div class="text-regular bg-gray content" id="fixed-text-01">
+            <ul>
+            <% cycloneData.details[3].value.forEach(position => { %>
+              <li><%= position %></li>
+            <% }) %>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- END Left Panel Group -->
+
+      <!-- START Right Panel Group -->
+      <div class="panel">
+        <!-- Typhoon Graphic -->
+        <div class="typhoon-graphic">
+          <img src="../livereload/public/special-signal/images/track_maymay_lowres.png" />
+        </div>
+
+        <!-- Wind Signal Header -->
+        <div class="title-panel centered bg-red">
+          TROPICAL CYCLONE WIND SIGNAL
+        </div>
+
+        <!-- Affected Bicol Provinces and Municipalities List -->
+        <div class="wind-signal text-subtitle typhoon-municipalities soft-bordered" id="wind-signal">
+          <div id="fixed-text-03">
+            <% windspeedData.forEach(windspeed => { %>
+            <div>
+              <span><strong>SIGNAL NO. <%= windspeed.signal %></strong></span>
+              <span><%= windspeed.province %></span>
+              <span>(<%= windspeed.municipalities %>)</span>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END: SECTION-01 Typhoon Info -->
+
+    <!-- START: SECTION-02 Crop Recommendations -->
+    <div class="section-02 soft-bordered">
+      <!-- 1st column: Impact Outlooks -->
+      <div style="width: 40%; border-right: 1px solid;">
+        <div class="title-panel centered bg-blue allcaps">
+          Impact Outlooks
+        </div>
+        <div class="recommendations fixed-size" id="impact-outlooks">
+          <div id="fixed-text-04">
+            <%- recommendationsImpacts %>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2nd column: Practices Recommendations -->
+      <div style="width: 60%">
+        <!-- Wind Signal Header -->
+        <div class="title-panel centered bg-green">
+          CLIMATE RESILIENT AGRICULTURE PRACTICES
+        </div>
+        <div class="text-regular recommendations" id="recommendations">
+          <div id="fixed-text-02">
+            <%- recommendationsPractices %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END: SECTION-02 Crop Recommendations -->
+
+    <!-- SECTION-03 Footer -->
+    <div class="section-03 soft-bordered">
+      <!-- Header Supports Title -->
+      <div class="title-panel bg-green centered footer-header">
+        DA RFO 3<br />
+        SUPPORTS
+      </div>
+      <div class="text-regular footer-content">
+      <div class="supports-list">
+        <div class="da-footer-listgroup">
+          <ul>
+            <li><span>Pre-positioned planting materials and other farm inputs</span></li>
+            <li><span>Research station available for livestock evacuations</span></li>
+            <li><span>Availability of ropes, power sprayer, mist blowers, laminated sacks and  water drums</span></li>
+            <li><span>Drugs and biologics for livestocks</span></li>
+          </ul>
+        </div>
+
+        <div class="da-footer-listgroup">
+          <ul>
+            <li><span>Farm machineries stationed in the DA RFO 3 and Research Outreach  Station in every province</span></li>
+            <li><span>FTechnical assistance for farm operations</span></li>
+            <li><span>Climate Information services</span></li>
+          </ul>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

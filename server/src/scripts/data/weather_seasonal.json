@@ -1,0 +1,71 @@
+{
+    "region": "bicol",
+    "provinces": [
+      {
+        "name": "Albay",
+        "months": [
+          { "mo": "apr", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "may", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jun", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jul", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "aug", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "sep", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 }
+        ]
+      },
+      {
+        "name": "Camarines Norte",
+        "months": [
+          { "mo": "apr", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "may", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jun", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jul", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "aug", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "sep", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 }
+        ]
+      },
+      {
+        "name": "Camarines Sur",
+        "months": [
+          { "mo": "apr", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "may", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jun", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jul", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "aug", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "sep", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 }
+        ]
+      },
+      {
+        "name": "Catanduanes",
+        "months": [
+          { "mo": "apr", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "may", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jun", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jul", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "aug", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "sep", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 }
+        ]
+      },
+      {
+        "name": "Masbate",
+        "months": [
+          { "mo": "apr", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "may", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jun", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jul", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "aug", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "sep", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 }
+        ]
+      },
+      {
+        "name": "Sorsogon",
+        "months": [
+          { "mo": "apr", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "may", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jun", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "jul", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "aug", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 },
+          { "mo": "sep", "val": "0", "con": "wb_normal", "dry": 0, "mean": 0, "normal": 0, "year": 2023 }
+        ]
+      }
+    ]
+  }

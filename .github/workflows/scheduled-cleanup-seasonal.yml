@@ -1,0 +1,67 @@
+# .github/workflows/scheduled-builds.yml
+name: Delete Archived Seasonal Weather Forecast (Old)
+
+on:
+  schedule:
+    # Runs "At minute 0 past every 1 hour."
+    # - cron: '0 */1 * * *'
+    # Runs "At 16:00 on day-of-month 1 (UTC every 1st day on the month, 12:00 AM Philippines time)."
+    - cron: '0 0 1 * *'
+
+env:
+  EMAIL_WHITELIST: ${{ secrets.EMAIL_WHITELIST }}
+  PROVINCES: ${{ secrets.PROVINCES }}
+  PROVINCES_ARCHIVE: ${{ secrets.PROVINCES_ARCHIVE }}
+  IS_RMCAS_API_ACTIVE: ${{ secrets.IS_RMCAS_API_ACTIVE }}
+
+jobs:
+  delete-archived-dev:
+    name: Delete Seasonal Weather Forecast (Development)
+    if: ${{ vars.IS_RMCAS_API_ACTIVE == '1' }}
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACC: ${{ secrets.FIREBASE_SERVICE_ACC_DEV }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_DEV }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: 'dev'
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+      - name: Run clean-up script
+        run: |
+          cd server
+          npm run cron:clean:seasonal
+
+  delete-archived-prod:
+    name: Delete Seasonal Weather Forecast (Production)
+    if: ${{ vars.IS_RMCAS_API_ACTIVE == '1' }}
+    # needs: delete-archived-dev
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACC: ${{ secrets.FIREBASE_SERVICE_ACC_PROD }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_PROD }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with: # TO-DO: Fine tune with @latest specific release tag reference (i.e., v9.4.5)
+          ref: 'master'
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+      - name: Run clean-up script
+        run: |
+          cd server
+          npm run cron:clean:seasonal

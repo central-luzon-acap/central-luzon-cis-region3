@@ -1,0 +1,42 @@
+version: "3"
+services:
+  # NextJS v13 app running in localhost development mode
+  acap-client-dev:
+    container_name: acap-client-dev
+    image: amia/acap-client:dev
+    env_file:
+      - ./client/.env
+    build:
+      context: ./client
+      dockerfile: Dockerfile.acap
+      target: development
+    networks:
+      - acap-dev
+    volumes:
+      - ./client:/opt/client
+      - /opt/client/node_modules
+      - /opt/client/.next
+    ports:
+      - "3000:3000"
+
+  # Express web server running in localhost development mode
+  acap-server-dev:
+    container_name: acap-server-dev
+    image: amia/acap-server:dev
+    env_file:
+      - ./server/.env
+    build:
+      context: ./server
+      dockerfile: Dockerfile.acap
+      target: development
+    networks:
+      - acap-dev
+    volumes:
+      - ./server/src:/opt/server/src
+    ports:
+      - "3001:3001"
+
+networks:
+  acap-dev:
+    name: acap-dev
+    external: false

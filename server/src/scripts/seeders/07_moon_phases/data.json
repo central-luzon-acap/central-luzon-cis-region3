@@ -1,0 +1,6 @@
+[
+  { "id": 0, "phase": "new_moon", "value": "19-Jun-22" },
+  { "id": 1, "phase": "first_quarter", "value": "21-Jul-22" },
+  { "id": 2, "phase": "full_moon", "value": "18-Nov-22" },
+  { "id": 3, "phase": "last_quarter", "value": "25-Dec-22" }
+]

@@ -1,0 +1,92 @@
+const cheerio = require('cheerio')
+const { admin, db } = require('../../utils/db')
+const { AxiosInstance } = require('../../utils/axios')
+const { FIRESTORE_COLLECTIONS, FIRESTORE_DOCUMENTS } = require('../../utils/constants')
+
+// This class processes PAGASA's El Nino / La Nina PAGASA weather data
+// Firestore: /w_services/typhoon_advisory
+class TyphoonAdvisory {
+  constructor () {
+    this.pageUrl = 'https://www.pagasa.dost.gov.ph/climate/el-nino-la-nina/monitoring'
+  }
+
+  /**
+   * Get all graphics and text description from PAGASA's Typhoon Monitoring Page
+   * @param {String} titleHook - Optional title text (contained in a <div>)
+   *     which is a direct sibling of target <img> & <p> elements
+   * @returns {Object} data - Object containing an array of images and text description
+   * @returns {String[]} data.images - Image source of the target graphic <img> files
+   * @returns {String[]} data.description - Text descriptions from paragraphs <p>
+   * @returns {String} data.url - PAGASA reference website URL
+   * @throws {Error} Throws an error for regular scenarios or if no data are extracted
+   */
+  async scrapetyphooninfo (titleHook = 'Monitoring') {
+    const obj = {
+      images: [],
+      descriptions: [],
+      url: this.pageUrl
+    }
+
+    try {
+      const { data } = await AxiosInstance({
+        rejectUnauthorized: (process.env.AXIOS_SSL_REJECT_INVALID === '1')
+      }).get(this.pageUrl)
+
+      const $ = cheerio.load(data)
+
+      $('div').map(function () {
+        const anchor = $(this)
+
+        if (anchor.text().trim() === titleHook) {
+          obj.descriptions = $(anchor[0].parent).find('p').map(function () {
+            return $(this).text().trim()
+          }).toArray()
+
+          obj.images = $(anchor[0].parent).find('img').map(function () {
+            return $(this)[0].attribs.src
+          }).toArray()
+        }
+
+        return true
+      })
+    } catch (err) {
+      throw new Error(err)
+    }
+
+    if (obj.images.length === 0 || obj.descriptions.length === 0) {
+      throw new Error('Failed to extract data')
+    }
+
+    return obj
+  }
+
+  /**
+   * Set (overwrite) the typhoon advisory information
+   * @param {Object} data
+   */
+  async settyphooninformation (data) {
+    try {
+      const docRef = await db.collection(FIRESTORE_COLLECTIONS.SERVICES)
+        .doc(FIRESTORE_DOCUMENTS.TYPHOON_ADVISORY)
+        .set({
+          img: data.img,
+          description: data.description,
+          source: data.reference,
+          updated_by: data.updated_by ?? 'admin',
+          type: FIRESTORE_DOCUMENTS.TYPHOON_ADVISORY,
+          date_updated: admin.firestore.Timestamp.now()
+        })
+      return docRef
+    } catch (err) {
+      throw new Error(err.message)
+    }
+  }
+
+  async gettyphooninformation () {
+    return await db.collection(FIRESTORE_COLLECTIONS.SERVICES)
+      .doc(FIRESTORE_DOCUMENTS.TYPHOON_ADVISORY)
+      .get()
+  }
+}
+
+module.exports = TyphoonAdvisory

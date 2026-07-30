@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF HTML Puppeteer 10-Day Bulletin Template</title>
+</head>
+<body>
+  <div class="container">
+    <!-- Main Header -->
+    <div class="header">
+      <!-- Upper Content -->
+      <div class="header-upper">
+        <!-- Logo -->
+        <div class="header-logos">
+          <img src="images/da-logo.png">
+          <img src="images/amia-logo.png">
+        </div>
+
+        <!-- Text -->
+        <div class="header-text">
+          Republic of the Philippines<br>
+          <span class="bold-text">DEPARTMENT OF AGRICULTURE</span><br>
+          <span class="bold-text">REGIONAL FIELD OFFICE NO. 3</span><br>
+          Maimpis, San Fernando, Pampanga, 2000<br>
+          <span class="url-text">https://rfo3.da.gov.ph</span><br>
+        </div>
+
+        <div class="crop-container">
+          <div class="crop-logo">
+            <% if (crop === "Rice" ) { %>
+              <img src="images/rice-logo.png" alt="Rice Logo">
+            <% } else if (crop === "Corn" ) { %>
+              <img src="images/corn-logo.png" alt="Corn Logo">
+            <% } %>
+          </div>
+          <div class="crop-label"><%= crop %></div>
+        </div>
+      </div>
+    </div>
+    <!-- END Header -->
+
+    <!-- Sub Header -->
+    <div class="sub-header">
+      <div>
+        10-DAY FARM WEATHER OUTLOOK AND ADVISORY
+      </div>
+      <div>
+        <%= location.municipality %>, <%= location.province %>
+      </div>
+    </div>
+
+    <!-- START: 10 Day Weather Data -->
+    <div class="tenday-container">
+
+      <% // Map each cover type to its corresponding image path
+        const coverImages = {
+              'cloudy' : 'images/cloudy.png',
+              'partly cloudy' : 'images/partly-cloudy.png',
+              'mostly cloudy' : 'images/mostly-cloudy.png',
+              'mostly sunny' : 'images/mostly-sunny.png',
+              'sunny' : 'images/sunny.svg'
+            };
+
+        const forecastImages = {
+          'no rain': 'images/sunny.svg',
+          'light rains': 'images/light-rain.svg',
+          'moderate rains': 'images/moderate-rain.svg',
+          'heavy rains': 'images/heavy-rain.svg',
+        };
+      %>
+
+      <!-- Left column: Forecast Period + Disclaimer -->
+      <div class="tenday-left-column">
+        <div class="info-box">
+          <div class="header-bar-green">FORECAST PERIOD</div>
+          <div class="info-box-body"><%= weatherTableData[0].valid_until %></div>
+        </div>
+        <div class="info-box disclaimer-container">
+          <div class="header-bar-green">DISCLAIMER</div>
+          <div class="info-box-body" style="font-size: 9px;">
+            DA RFO 3 is not liable to any loss or damages arising from utilizing the Farm Weather Outlook and
+            Advisory. The forecast is valid only to the dates and municipality stated.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: forecast card rows -->
+      <div class="tenday-right-column">
+        <div class="upper-tenday-container">
+          <% const upperHalf=weatherTableData.slice(0, 5); %>
+          <% upperHalf.forEach((record)=> { %>
+            <div class="tenday-item">
+              <div class="date-label"><%= record.day %> <%= record.date %></div>
+              <div class="tenday-icons-row">
+                <img src="<%= forecastImages[record.forecast] %>" />
+                <img src="<%= coverImages[record.cover] %>" />
+              </div>
+              <div class="tenday-forecast-label"><%= record.forecast %></div>
+              <div class="temperature-windspeed-container">
+                <div class="temp-wind-pair">
+                  <svg class="unit-icon" viewBox="0 0 10 20" xmlns="http://www.w3.org/2000/svg"><path d="M7.66881 10.9166V3.58325C7.66881 2.85391 7.37425 2.15443 6.84994 1.63871C6.32563 1.12298 5.61451 0.833252 4.87302 0.833252C4.13153 0.833252 3.42041 1.12298 2.8961 1.63871C2.37179 2.15443 2.07724 2.85391 2.07724 3.58325V10.9166C1.29485 11.4938 0.716931 12.2984 0.425329 13.2167C0.133728 14.1349 0.143233 15.12 0.452497 16.0326C0.76176 16.9452 1.3551 17.739 2.14848 18.3014C2.94186 18.8639 3.89504 19.1666 4.87302 19.1666C5.851 19.1666 6.80419 18.8639 7.59756 18.3014C8.39094 17.739 8.98428 16.9452 9.29355 16.0326C9.60281 15.12 9.61231 14.1349 9.32071 13.2167C9.02911 12.2984 8.45119 11.4938 7.66881 10.9166ZM4.87302 2.66659C5.12018 2.66659 5.35722 2.76316 5.53199 2.93507C5.70676 3.10698 5.80495 3.34014 5.80495 3.58325V6.33325H3.94109V3.58325C3.94109 3.34014 4.03928 3.10698 4.21405 2.93507C4.38882 2.76316 4.62586 2.66659 4.87302 2.66659Z" fill="black" /></svg>
+                  <div class="temperature-label"><%= record.temp %>°</div>
+                </div>
+                <div class="temp-wind-pair">
+                  <svg class="unit-icon" viewBox="0 0 24 23" xmlns="http://www.w3.org/2000/svg"><path d="M11.8839 10.15C11.5878 10.15 11.3038 10.2659 11.0943 10.4722C10.8849 10.6785 10.7673 10.9583 10.7673 11.25C10.7673 11.5417 10.8849 11.8215 11.0943 12.0278C11.3038 12.2341 11.5878 12.35 11.8839 12.35C12.1801 12.35 12.4641 12.2341 12.6735 12.0278C12.8829 11.8215 13.0006 11.5417 13.0006 11.25C13.0006 10.9583 12.8829 10.6785 12.6735 10.4722C12.4641 10.2659 12.1801 10.15 11.8839 10.15ZM12.4422 0.25C17.4671 0.25 17.5899 4.177 14.9547 5.475C13.8492 6.014 13.3579 7.169 13.1457 8.192C13.6817 8.412 14.1507 8.753 14.508 9.193C18.6396 6.993 23.0838 7.862 23.0838 11.8C23.0838 16.75 19.0974 16.86 17.7798 14.253C17.2215 13.164 16.0378 12.68 14.9993 12.471C14.776 12.999 14.4299 13.45 13.9832 13.824C16.2053 17.883 15.3232 22.25 11.3256 22.25C6.30073 22.25 6.20023 18.312 8.8355 17.014C9.9298 16.475 10.4211 15.331 10.6445 14.319C10.0973 14.099 9.61714 13.747 9.25982 13.307C5.13942 15.485 0.717529 14.627 0.717529 10.7C0.717529 5.75 4.69276 5.629 6.0104 8.236C6.56872 9.325 7.74119 9.798 8.77966 10.007C8.99183 9.479 9.34915 9.017 9.80697 8.665C7.58486 4.606 8.46701 0.25 12.4422 0.25Z" fill="black" /></svg>
+                  <div class="windspeed-label"><%= record.wspeed %></div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+
+        <div class="lower-tenday-container">
+          <% const lowerHalf=weatherTableData.slice(5); %>
+          <% lowerHalf.forEach((record)=> { %>
+            <div class="tenday-item">
+              <div class="date-label"><%= record.day %> <%= record.date %></div>
+              <div class="tenday-icons-row">
+                <img src="<%= forecastImages[record.forecast] %>" />
+                <img src="<%= coverImages[record.cover] %>" />
+              </div>
+              <div class="tenday-forecast-label"><%= record.forecast %></div>
+              <div class="temperature-windspeed-container">
+                <div class="temp-wind-pair">
+                  <svg class="unit-icon" viewBox="0 0 10 20" xmlns="http://www.w3.org/2000/svg"><path d="M7.66881 10.9166V3.58325C7.66881 2.85391 7.37425 2.15443 6.84994 1.63871C6.32563 1.12298 5.61451 0.833252 4.87302 0.833252C4.13153 0.833252 3.42041 1.12298 2.8961 1.63871C2.37179 2.15443 2.07724 2.85391 2.07724 3.58325V10.9166C1.29485 11.4938 0.716931 12.2984 0.425329 13.2167C0.133728 14.1349 0.143233 15.12 0.452497 16.0326C0.76176 16.9452 1.3551 17.739 2.14848 18.3014C2.94186 18.8639 3.89504 19.1666 4.87302 19.1666C5.851 19.1666 6.80419 18.8639 7.59756 18.3014C8.39094 17.739 8.98428 16.9452 9.29355 16.0326C9.60281 15.12 9.61231 14.1349 9.32071 13.2167C9.02911 12.2984 8.45119 11.4938 7.66881 10.9166ZM4.87302 2.66659C5.12018 2.66659 5.35722 2.76316 5.53199 2.93507C5.70676 3.10698 5.80495 3.34014 5.80495 3.58325V6.33325H3.94109V3.58325C3.94109 3.34014 4.03928 3.10698 4.21405 2.93507C4.38882 2.76316 4.62586 2.66659 4.87302 2.66659Z" fill="black" /></svg>
+                  <div class="temperature-label"><%= record.temp %>°</div>
+                </div>
+                <div class="temp-wind-pair">
+                  <svg class="unit-icon" viewBox="0 0 24 23" xmlns="http://www.w3.org/2000/svg"><path d="M11.8839 10.15C11.5878 10.15 11.3038 10.2659 11.0943 10.4722C10.8849 10.6785 10.7673 10.9583 10.7673 11.25C10.7673 11.5417 10.8849 11.8215 11.0943 12.0278C11.3038 12.2341 11.5878 12.35 11.8839 12.35C12.1801 12.35 12.4641 12.2341 12.6735 12.0278C12.8829 11.8215 13.0006 11.5417 13.0006 11.25C13.0006 10.9583 12.8829 10.6785 12.6735 10.4722C12.4641 10.2659 12.1801 10.15 11.8839 10.15ZM12.4422 0.25C17.4671 0.25 17.5899 4.177 14.9547 5.475C13.8492 6.014 13.3579 7.169 13.1457 8.192C13.6817 8.412 14.1507 8.753 14.508 9.193C18.6396 6.993 23.0838 7.862 23.0838 11.8C23.0838 16.75 19.0974 16.86 17.7798 14.253C17.2215 13.164 16.0378 12.68 14.9993 12.471C14.776 12.999 14.4299 13.45 13.9832 13.824C16.2053 17.883 15.3232 22.25 11.3256 22.25C6.30073 22.25 6.20023 18.312 8.8355 17.014C9.9298 16.475 10.4211 15.331 10.6445 14.319C10.0973 14.099 9.61714 13.747 9.25982 13.307C5.13942 15.485 0.717529 14.627 0.717529 10.7C0.717529 5.75 4.69276 5.629 6.0104 8.236C6.56872 9.325 7.74119 9.798 8.77966 10.007C8.99183 9.479 9.34915 9.017 9.80697 8.665C7.58486 4.606 8.46701 0.25 12.4422 0.25Z" fill="black" /></svg>
+                  <div class="windspeed-label"><%= record.wspeed %></div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+    <!-- END: 10 Day Weather Data -->
+
+    <!-- START: Legend + Moon Phases row -->
+    <div class="advisory-legend-row">
+      <div class="legend-box">
+        <div class="legend-container">
+          <div class="header-bar-green">LEGEND</div>
+          <div class="legend-content-container">
+            <div class="legend-row">
+              <div class="rainfall-intensity-label">Rainfall<br>Intensity</div>
+              <div class="legend-item">
+                <img src="images/sunny.svg">
+                <div class="legend-item-label">No Rain</div>
+              </div>
+              <div class="legend-item">
+                <img src="images/light-rain_2.svg">
+                <div class="legend-item-label">Light Rain</div>
+              </div>
+              <div class="legend-item">
+                <img src="images/moderate-rain_2.svg">
+                <div class="legend-item-label">Moderate Rain</div>
+              </div>
+              <div class="legend-item">
+                <img src="images/heavy-rain_2.svg">
+                <div class="legend-item-label">Heavy Rain</div>
+              </div>
+            </div>
+            <div class="legend-row">
+              <div class="cloud-cover-label">Cloud<br>Cover</div>
+              <div class="legend-item">
+                <img src="images/sunny_2.svg">
+                <div class="legend-item-label">Sunny</div>
+              </div>
+              <div class="legend-item">
+                <img src="images/mostly-sunny_2.png">
+                <div class="legend-item-label">Mostly Sunny</div>
+              </div>
+              <div class="legend-item">
+                <img src="images/partly-cloudy_2.png">
+                <div class="legend-item-label">Partly Cloudy</div>
+              </div>
+              <div class="legend-item">
+                <img src="images/mostly-cloudy_2.png">
+                <div class="legend-item-label">Mostly Cloudy</div>
+              </div>
+              <div class="legend-item">
+                <img src="images/cloudy_2.png">
+                <div class="legend-item-label">Cloudy</div>
+              </div>
+            </div>
+            <div class="legend-row legend-row-footer">
+              <div class="legend-temperature-windspeed-label"><svg class="unit-icon" viewBox="0 0 10 20" xmlns="http://www.w3.org/2000/svg"><path d="M7.66881 10.9166V3.58325C7.66881 2.85391 7.37425 2.15443 6.84994 1.63871C6.32563 1.12298 5.61451 0.833252 4.87302 0.833252C4.13153 0.833252 3.42041 1.12298 2.8961 1.63871C2.37179 2.15443 2.07724 2.85391 2.07724 3.58325V10.9166C1.29485 11.4938 0.716931 12.2984 0.425329 13.2167C0.133728 14.1349 0.143233 15.12 0.452497 16.0326C0.76176 16.9452 1.3551 17.739 2.14848 18.3014C2.94186 18.8639 3.89504 19.1666 4.87302 19.1666C5.851 19.1666 6.80419 18.8639 7.59756 18.3014C8.39094 17.739 8.98428 16.9452 9.29355 16.0326C9.60281 15.12 9.61231 14.1349 9.32071 13.2167C9.02911 12.2984 8.45119 11.4938 7.66881 10.9166ZM4.87302 2.66659C5.12018 2.66659 5.35722 2.76316 5.53199 2.93507C5.70676 3.10698 5.80495 3.34014 5.80495 3.58325V6.33325H3.94109V3.58325C3.94109 3.34014 4.03928 3.10698 4.21405 2.93507C4.38882 2.76316 4.62586 2.66659 4.87302 2.66659Z" fill="black" /></svg> Temperature</div>
+              <div class="legend-temperature-windspeed-label"><svg class="unit-icon" viewBox="0 0 24 23" xmlns="http://www.w3.org/2000/svg"><path d="M11.8839 10.15C11.5878 10.15 11.3038 10.2659 11.0943 10.4722C10.8849 10.6785 10.7673 10.9583 10.7673 11.25C10.7673 11.5417 10.8849 11.8215 11.0943 12.0278C11.3038 12.2341 11.5878 12.35 11.8839 12.35C12.1801 12.35 12.4641 12.2341 12.6735 12.0278C12.8829 11.8215 13.0006 11.5417 13.0006 11.25C13.0006 10.9583 12.8829 10.6785 12.6735 10.4722C12.4641 10.2659 12.1801 10.15 11.8839 10.15ZM12.4422 0.25C17.4671 0.25 17.5899 4.177 14.9547 5.475C13.8492 6.014 13.3579 7.169 13.1457 8.192C13.6817 8.412 14.1507 8.753 14.508 9.193C18.6396 6.993 23.0838 7.862 23.0838 11.8C23.0838 16.75 19.0974 16.86 17.7798 14.253C17.2215 13.164 16.0378 12.68 14.9993 12.471C14.776 12.999 14.4299 13.45 13.9832 13.824C16.2053 17.883 15.3232 22.25 11.3256 22.25C6.30073 22.25 6.20023 18.312 8.8355 17.014C9.9298 16.475 10.4211 15.331 10.6445 14.319C10.0973 14.099 9.61714 13.747 9.25982 13.307C5.13942 15.485 0.717529 14.627 0.717529 10.7C0.717529 5.75 4.69276 5.629 6.0104 8.236C6.56872 9.325 7.74119 9.798 8.77966 10.007C8.99183 9.479 9.34915 9.017 9.80697 8.665C7.58486 4.606 8.46701 0.25 12.4422 0.25Z" fill="black" /></svg> Wind Speed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="moon-phases-box">
+        <div class="moon-phases-panel">
+          <div class="header-bar-blue">MOON PHASES</div>
+          <div class="moon-phases-container">
+            <div class="upper-moon-phases">
+              <div class="moon-phase-item">
+                <div>
+                  <img src="images/last-quarter.png">
+                </div>
+                <div style="margin-top: 8px;">
+                  <div class="moon-phase-label">Last Quarter</div>
+                  <div class="moon-phase-data-container">
+                    <%= moonPhasesData[3].value %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="moon-phase-item">
+                <div>
+                  <img src="images/new-moon.png">
+                </div>
+                <div style="margin-top: 8px;">
+                  <div class="moon-phase-label">New Moon</div>
+                  <div class="moon-phase-data-container">
+                    <%= moonPhasesData[0].value %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="lower-moon-phases">
+              <div class="moon-phase-item">
+                <div>
+                  <img src="images/first-quarter.png">
+                </div>
+                <div style="margin-top: 8px;">
+                  <div class="moon-phase-label">First Quarter</div>
+                  <div class="moon-phase-data-container">
+                    <%= moonPhasesData[1].value %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="moon-phase-item">
+                <div>
+                  <img src="images/full-moon.png">
+                </div>
+                <div style="margin-top: 8px;">
+                  <div class="moon-phase-label">Full Moon</div>
+                  <div class="moon-phase-data-container">
+                    <%= moonPhasesData[2].value %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END: Legend + Moon Phases row -->
+
+    <!-- START: Farming Advisory (full width) -->
+    <div class="farming-advisory-panel">
+      <div class="header-bar-green">FARMING ADVISORY</div>
+      <div class="stage-farm-operations-impact-outlooks-container">
+        <div class="stage-container">
+          <div style="border-bottom: 1px solid #cfe3d9; font-weight: 600; padding: 3px;">STAGE</div>
+          <div style="padding: 5px;">
+            <% commoditiesData.forEach((record)=> { %>
+              <% record.stages.forEach((stage)=> { %>
+                <%= stage %><br>
+              <% }) %>
+            <% }) %>
+          </div>
+        </div>
+        <div class="farm-operations-container">
+          <div style="border-bottom: 1px solid #cfe3d9; font-weight: 600; padding: 3px;">FARM OPERATIONS</div>
+          <div style="padding: 5px;">
+            <ul style="text-align: left; margin: 0; padding-left: 16px;">
+              <% commoditiesData.forEach((record)=> { %>
+                <% record.farmoperations.forEach((activity)=> { %>
+                  <li><%= activity %></li>
+                <% }) %>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+        <div class="impact-outlooks-contaner">
+          <div style="border-bottom: 1px solid #cfe3d9; font-weight: 600; padding: 3px;">IMPACT OUTLOOKS</div>
+          <div style="padding: 5px;">
+            <%- recommendationsImpacts %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END: Farming Advisory -->
+
+
+
+    <!-- START: Support Services + Climate Resilient Practices row -->
+    <div class="services-practices-row">
+      <div style="width: 40vw;">
+        <div class="support-services-label">DEPARTMENT OF AGRICULTURE SUPPORT SERVICES</div>
+        <div>
+          <ul class="support-services-container">
+            <% services.forEach((service)=> { %>
+              <li>
+                <span>
+                  <%= service %>
+                </span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+      <div style="width: 60vw;">
+        <div class="support-services-label">CLIMATE RESILIENT AGRICULTURE PRACTICES</div>
+        <div style="font-size: 10px; padding: 10px;">
+          <ul style="text-align: left; margin: 0; padding-left: 16px;">
+            <% Object.keys(recommendationsByStage).forEach(stage=> { %>
+              <% Object.keys(recommendationsByStage[stage]).forEach(farming_activity=> { %>
+                <div>
+                  <strong><%= stage %> - <%= farming_activity %></strong>
+                </div>
+                <% recommendationsByStage[stage][farming_activity].forEach(recommendation=> { %>
+                  <% if(language=='en' ){ %>
+                    <div><%- recommendation.management_recommendations_english %></div>
+                  <% } else { %>
+                    <div><%- recommendation.management_recommendations_tagalog %></div>
+                  <% } %>
+                <% }) %>
+              <% }) %>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- END: Support Services + Climate Resilient Practices row -->
+
+    <!-- START: Contact Info -->
+    <div class="contact-info-container">
+      <div class="contact-info-content">
+        For more details, contact: (049) 536-3688 / <span class="url-text">daamiarfo3@gmail.com</span>
+        <br>
+        <br>
+      </div>
+    </div>
+    <!-- END: Contact Info -->
+  </div>
+</body>
+</html>

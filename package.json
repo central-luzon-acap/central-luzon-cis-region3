@@ -1,0 +1,26 @@
+{
+  "name": "climate-services-webportal",
+  "version": "1.0.0",
+  "description": "Climate services web portal.",
+  "main": "index.js",
+  "engines": {
+    "node": "16.14.2",
+    "npm": "8.5.0"
+  },
+  "scripts": {
+    "install": "cd server && npm install",
+    "postinstall": "cd server && npm run seed:user && npm run gen:docs",
+    "build": "cd server && npm run build",
+    "start": "cd server && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ciatph/climate-services-webportal.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ciatph/climate-services-webportal/issues"
+  },
+  "homepage": "https://github.com/ciatph/climate-services-webportal#readme"
+}

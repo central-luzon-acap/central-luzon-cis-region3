@@ -1,0 +1,81 @@
+# .github/workflows/scheduled-builds.yml
+name: CRON Download, Parse and Upload Excel Files
+
+on:
+  schedule:
+    # Runs "At 01:00 (UTC every day, 9:00 AM Philippines time)."
+    - cron: '0 * * * 6'
+
+env:
+  EMAIL_WHITELIST: ${{ secrets.EMAIL_WHITELIST }}
+  PAGASA_10DAY_EXCEL_BASE_URL: ${{ secrets.PAGASA_10DAY_EXCEL_BASE_URL }}
+  REGION_NAME: ${{ secrets.REGION_NAME }}
+  PROVINCES: ${{ secrets.PROVINCES }}
+  DEFAULT_PROVINCE: ${{ secrets.DEFAULT_PROVINCE }}
+  SORT_ALPHABETICAL: ${{ secrets.SORT_ALPHABETICAL }}
+  ARCHIVE_TENDAY_FORECAST: ${{ secrets.ARCHIVE_TENDAY_FORECAST }}
+  PROVINCES_ARCHIVE: ${{ secrets.PROVINCES_ARCHIVE }}
+  IS_RMCAS_API_ACTIVE: ${{ secrets.IS_RMCAS_API_ACTIVE }}
+  SPECIAL_CHARACTERS: ${{ secrets.SPECIAL_CHARACTERS }}
+
+jobs:
+  update-tenday-dev:
+    name: Download, Parse and Upload Excel (Development)
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACC: ${{ secrets.FIREBASE_SERVICE_ACC_DEV }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_DEV }}
+      CHECK_RANGE_YEAR: ${{ secrets.CHECK_RANGE_YEAR_DEV }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: 'dev'
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+      - name: Run script
+        run: |
+          cd server
+          npm run cron:tenday
+      - name: Run clean-up script
+        if: env.IS_RMCAS_API_ACTIVE == '1'
+        run: |
+          cd server
+          npm run cron:clean:tenday
+
+  update-tenday-prod:
+    name: Download, Parse and Upload Excel (Production)
+    # needs: update-tenday-dev
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACC: ${{ secrets.FIREBASE_SERVICE_ACC_PROD }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_PROD }}
+      CHECK_RANGE_YEAR: ${{ secrets.CHECK_RANGE_YEAR_PROD }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with: # TO-DO: Fine tune with @latest specific release tag reference (i.e., v9.4.5)
+          ref: 'master'
+      - name: Use NodeJS v16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+      - name: Install dependencies
+        run: |
+          cd server
+          npm install
+      - name: Run script
+        run: |
+          cd server
+          npm run cron:tenday
+      - name: Run clean-up script
+        if: env.IS_RMCAS_API_ACTIVE == '1'
+        run: |
+          cd server
+          npm run cron:clean:tenday
